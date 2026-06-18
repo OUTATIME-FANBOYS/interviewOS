@@ -1,26 +1,84 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: #080a0e;
+  --color-surface: #0f1117;
+  --color-surface2: #151820;
+  --color-border: #1e2535;
+  --color-border2: #252d40;
+  --color-accent: #00e5ff;
+  --color-accent2: #7c3aed;
+  --color-accent3: #f59e0b;
+  --color-green: #10b981;
+  --color-red: #ef4444;
+  --color-text: #e2e8f0;
+  --color-muted: #4a5568;
+  --color-muted2: #64748b;
+  --font-mono: "Courier New", monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+  }
+
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  button:active {
+    opacity: 0.7;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes flipIn {
+  from {
+    opacity: 0;
+    transform: rotateY(-10deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-cardIn {
+  animation: cardIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.animate-flipIn {
+  animation: flipIn 0.28s ease;
+}
+
+.animate-fadeUp {
+  animation: fadeUp 0.22s ease;
 }
