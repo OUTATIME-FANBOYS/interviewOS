@@ -1,32 +1,7 @@
 import type { Flashcard } from "@/lib/types";
 
-// Placeholder — replace with your full 255+ card dataset
-export const CARDS: Flashcard[] = [
-  {
-    id: 1,
-    cat: "System Design",
-    sub: "Fundamentals",
-    q: "What is horizontal vs vertical scaling?",
-    a: "Vertical scaling adds more resources (CPU/RAM) to a single machine. Horizontal scaling adds more machines to distribute load. Horizontal is preferred for large-scale systems due to better fault tolerance and no single point of failure.",
-  },
-  {
-    id: 2,
-    cat: "Algorithms",
-    sub: "Sorting",
-    q: "What is the time complexity of QuickSort?",
-    a: "Average: O(n log n), Worst: O(n²) when pivot is always min/max. Best avoided for sorted arrays without randomized pivot selection.",
-  },
-  {
-    id: 3,
-    cat: "Data Structures",
-    sub: "Trees",
-    q: "What is a balanced binary search tree?",
-    a: "A BST where the height difference between left and right subtrees is at most 1 for every node. Examples: AVL tree, Red-Black tree. Guarantees O(log n) for search, insert, delete.",
-  },
-];
-
 // SYSTEM DESIGN (120 cards)
-const SD = [
+const SD: Flashcard[] = [
   // Scalability (20)
   {id:1,cat:"System Design",sub:"Scalability",q:"Horizontal vs vertical scaling — key differences?",a:"<b>Vertical (scale up):</b> add CPU/RAM to one machine. Simple, no code changes, hits hardware ceiling, single point of failure. <b>Horizontal (scale out):</b> add more machines, distribute load. Preferred for HA. Go vertical first for quick wins; horizontal when you outgrow one machine."},
   {id:2,cat:"System Design",sub:"Scalability",q:"Back-of-envelope estimation — key numbers to memorize.",a:"1 day ≈ 86,400s. 1M users × 10 req/day = 115 QPS. 1M users × 1KB = 1GB. 1M users × 1MB = 1TB. Memory: 1 char=1B, 1 int=4B, 1 long=8B. Network: 1Gbps = 125MB/s. Disk: 100MB/s HDD, 500MB/s SSD. Always state assumptions; shows you can sanity-check designs."},
@@ -165,7 +140,7 @@ const SD = [
 ];
 
 // ALGORITHMS (90 cards) + DATA STRUCTURES (70 cards)
-const ALGO_DS = [
+const ALGO_DS: Flashcard[] = [
   // ── Algorithms › Sorting & Searching (20) ──
   {id:121,cat:"Algorithms",sub:"Sorting & Searching",q:"Compare all major sorting algorithms — complexities and use cases.",a:"<b>QuickSort:</b> O(n log n) avg, O(n²) worst, in-place, unstable, fastest in practice. <b>MergeSort:</b> O(n log n) all cases, O(n) space, stable. <b>HeapSort:</b> O(n log n) all cases, O(1) space, unstable. <b>TimSort:</b> O(n log n) worst, O(n) best (sorted), stable — Python/Java default. <b>Counting:</b> O(n+k), stable, only integers. <b>RadixSort:</b> O(d×(n+k)), stable. Choose QuickSort by default; MergeSort for stable sort; CountingSort for bounded integers."},
   {id:122,cat:"Algorithms",sub:"Sorting & Searching",q:"Binary search — templates for lower_bound and upper_bound.",a:"<b>Lower bound</b> (first pos ≥ target): lo=0, hi=n. while lo<hi: mid=lo+(hi-lo)//2; if arr[mid]<target: lo=mid+1; else: hi=mid. return lo. <b>Upper bound</b> (first pos > target): same but if arr[mid]<=target: lo=mid+1. Both return index where target would be inserted. Critical: use lo+(hi-lo)/2 to avoid overflow. Memorize both templates — used in 90% of binary search problems."},
@@ -322,3 +297,5 @@ const ALGO_DS = [
   {id:259,cat:"Data Structures",sub:"Graphs",q:"Mo's algorithm on trees.",a:"Offline queries on trees using Mo's algorithm (sqrt decomposition on time). Flatten tree using Euler tour, then apply Mo's on linear sequence. Handles: queries about subtrees, queries about paths (with modifications). Mo's on arrays: sort queries by (block of left, right direction), move left/right pointers. O((n+q)√n). Use when: offline queries on sequences, maintaining count of distinct elements in range, queries that are hard to answer online."},
   {id:260,cat:"Data Structures",sub:"Graphs",q:"Graph algorithms used in system design.",a:"<b>Shortest path (Dijkstra):</b> routing protocols (OSPF), ride-sharing ETA, network QoS. <b>MST:</b> network cable minimization, cluster analysis. <b>Topological sort:</b> build systems (Gradle, Bazel), task scheduling, dependency resolution (npm/pip). <b>Max flow:</b> network bandwidth allocation, matching. <b>BFS:</b> peer-to-peer routing, social network degree of separation, web crawling BFS. <b>Union-Find:</b> dynamic connectivity in distributed systems, social network clustering, image segmentation."},
 ];
+
+export const CARDS: Flashcard[] = [...SD, ...ALGO_DS];

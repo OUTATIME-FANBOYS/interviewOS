@@ -1,27 +1,18 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { CARDS } from "@/data/cards";
 import type { Flashcard } from "@/lib/types";
 
 export function useFlashcards() {
   const [cards, setCards] = useState<Flashcard[]>([]);
-  const [loading, setLoading] = useState(false);
 
-  const fetchCards = useCallback(async (cat?: string, sub?: string) => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (cat) params.append("cat", cat);
-      if (sub) params.append("sub", sub);
-      const response = await fetch(`/api/cards?${params}`);
-      const data = await response.json();
-      setCards(data);
-    } catch (error) {
-      console.error("Fetch cards failed:", error);
-    } finally {
-      setLoading(false);
-    }
+  const fetchCards = useCallback((cat?: string, sub?: string) => {
+    let filtered = CARDS;
+    if (cat) filtered = filtered.filter((c) => c.cat === cat);
+    if (sub) filtered = filtered.filter((c) => c.sub === sub);
+    setCards(filtered);
   }, []);
 
-  return { cards, loading, fetchCards };
+  return { cards, fetchCards };
 }
