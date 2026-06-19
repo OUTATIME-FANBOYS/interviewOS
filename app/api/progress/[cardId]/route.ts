@@ -1,12 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-function serverSupabase() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-}
+import { supabase } from "@/lib/supabase";
 
 type Params = { params: Promise<{ cardId: string }> };
 
@@ -17,12 +10,13 @@ export async function GET(_req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Invalid cardId" }, { status: 400 });
   }
 
-  const { data } = await serverSupabase()
+  const { data, error } = await supabase
     .from("progress")
     .select("card_id, seen, mastered, attempts")
     .eq("card_id", id)
-    .single();
+    .maybeSingle();
 
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (!data) return NextResponse.json(null);
   return NextResponse.json({ cardId: data.card_id, seen: data.seen, mastered: data.mastered, attempts: data.attempts });
 }
@@ -34,7 +28,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Invalid cardId" }, { status: 400 });
   }
 
-  const { error } = await serverSupabase().from("progress").delete().eq("card_id", id);
+  const { error } = await supabase.from("progress").delete().eq("card_id", id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });
 }
@@ -47,21 +41,7 @@ export async function POST(req: NextRequest, { params }: Params) {
   }
 
   const { mastered } = await req.json() as { mastered: boolean };
-  const sb = serverSupabase();
-
-  const { data: existing } = await sb
-    .from("progress")
-    .select("attempts")
-    .eq("card_id", id)
-    .single();
-
-  const { error } = await sb.from("progress").upsert({
-    card_id: id,
-    seen: true,
-    mastered,
-    attempts: (existing?.attempts ?? 0) + 1,
-  }, { onConflict: "card_id" });
-
+  const { error } = await supabase.rpc("upsert_progress", { p_card_id: id, p_mastered: mastered });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });
 }
