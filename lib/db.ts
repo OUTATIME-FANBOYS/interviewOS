@@ -73,8 +73,8 @@ class Database {
 
   async getProgress(cardId: number): Promise<Progress | null> {
     if (!this.isNative || !this.db) {
-      const raw = localStorage.getItem(`progress:${cardId}`);
-      return raw ? JSON.parse(raw) : null;
+      const res = await fetch(`/api/progress/${cardId}`);
+      return res.ok ? res.json() : null;
     }
     const result = await this.db.query(
       "SELECT * FROM progress WHERE cardId = ?",
@@ -85,14 +85,11 @@ class Database {
 
   async updateProgress(cardId: number, mastered: boolean) {
     if (!this.isNative || !this.db) {
-      const existing = await this.getProgress(cardId);
-      const updated: Progress = {
-        cardId,
-        seen: true,
-        mastered,
-        attempts: (existing?.attempts || 0) + 1,
-      };
-      localStorage.setItem(`progress:${cardId}`, JSON.stringify(updated));
+      await fetch(`/api/progress/${cardId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mastered }),
+      });
       return;
     }
     const existing = await this.getProgress(cardId);
