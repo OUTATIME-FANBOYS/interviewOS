@@ -5,14 +5,12 @@ import { BottomNav } from "@/components/BottomNav";
 import FlashcardView from "@/components/FlashcardView";
 import QuizView from "@/components/QuizView";
 import StatsView from "@/components/StatsView";
-import { db } from "@/lib/db";
-
 export default function Home() {
   const [tab, setTab] = useState<"flash" | "quiz" | "stats">("flash");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    db.init().then(() => setMounted(true));
+    setMounted(true);
   }, []);
 
   if (!mounted) return null;
