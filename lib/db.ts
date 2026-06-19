@@ -11,14 +11,9 @@ class Database {
   async init() {
     if (typeof window === "undefined") return;
     try {
-      const { CapacitorSQLite } = await import("@capacitor-community/sqlite");
-      this.db = await CapacitorSQLite.createConnection({
-        database: "interview_os",
-        version: 1,
-        encrypted: false,
-        mode: "no-encryption",
-        readonly: false,
-      });
+      const { CapacitorSQLite, SQLiteConnection } = await import("@capacitor-community/sqlite");
+      const sqlite = new SQLiteConnection(CapacitorSQLite);
+      this.db = await sqlite.createConnection("interview_os", false, "no-encryption", 1, false);
       await this.db.open();
       await this.createTables();
       this.isNative = true;
@@ -145,8 +140,9 @@ class Database {
 
   async close() {
     if (this.isNative && this.db) {
-      const { CapacitorSQLite } = await import("@capacitor-community/sqlite");
-      await CapacitorSQLite.closeConnection({ database: "interview_os", readonly: false });
+      const { CapacitorSQLite, SQLiteConnection } = await import("@capacitor-community/sqlite");
+      const sqlite = new SQLiteConnection(CapacitorSQLite);
+      await sqlite.closeConnection("interview_os", false);
     }
   }
 }
