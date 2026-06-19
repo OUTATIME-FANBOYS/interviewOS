@@ -17,7 +17,7 @@ export default function Home() {
   if (!mounted) return null;
 
   return (
-    <main className="pb-20">
+    <main style={{ paddingBottom: "calc(5rem + env(safe-area-inset-bottom, 0px))" }}>
       {tab === "flash" && <FlashcardView />}
       {tab === "quiz" && <QuizView />}
       {tab === "stats" && <StatsView />}

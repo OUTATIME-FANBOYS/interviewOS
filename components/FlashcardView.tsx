@@ -9,6 +9,10 @@ import { useProgress } from "@/hooks/useProgress";
 import { useTheme } from "@/hooks/useTheme";
 import type { Flashcard } from "@/lib/types";
 
+function formatAnswer(html: string): string {
+  return html.replace(/\. (<b>)/g, ".<br><br>$1");
+}
+
 export default function FlashcardView() {
   const { cards, fetchCards } = useFlashcards();
   const { updateProgress } = useProgress();
@@ -42,7 +46,10 @@ export default function FlashcardView() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Top bar */}
-      <div className="sticky top-0 z-10 bg-bg/95 backdrop-blur border-b border-border px-4 py-3 flex items-center justify-between">
+      <div
+        className="sticky top-0 z-10 bg-bg/95 backdrop-blur border-b border-border px-4 pb-3 flex items-center justify-between"
+        style={{ paddingTop: "calc(0.75rem + env(safe-area-inset-top, 0px))" }}
+      >
         <span className="text-sm font-semibold text-text tracking-tight">
           InterviewOS Flashcards
         </span>
@@ -136,7 +143,7 @@ export default function FlashcardView() {
                   <p
                     className="text-sm leading-relaxed [&_b]:font-semibold [&_b]:text-text"
                     style={{ color: "var(--theme-muted2)" }}
-                    dangerouslySetInnerHTML={{ __html: card.a }}
+                    dangerouslySetInnerHTML={{ __html: formatAnswer(card.a) }}
                   />
                 </div>
               </div>

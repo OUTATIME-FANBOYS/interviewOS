@@ -13,7 +13,10 @@ const TABS = [
 
 export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-surface/95 backdrop-blur border-t border-border flex">
+    <div
+      className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-surface/95 backdrop-blur border-t border-border flex"
+      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+    >
       {TABS.map(({ id, icon, label }) => (
         <button
           key={id}

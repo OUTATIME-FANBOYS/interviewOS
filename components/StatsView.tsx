@@ -37,7 +37,7 @@ export default function StatsView() {
   }
 
   return (
-    <div className="p-4">
+    <div className="p-4" style={{ paddingTop: "calc(1rem + env(safe-area-inset-top, 0px))" }}>
       <h1 className="text-xl font-bold text-text mb-1">Progress</h1>
       <p className="text-xs text-muted2 mb-6">Track your mastery across topics</p>
 
