@@ -1,6 +1,22 @@
 import type { Flashcard, Progress } from "./types";
 import { supabase } from "./supabase";
 
+const STORAGE_KEY = "ios_progress";
+
+type ProgressStore = Record<number, { seen: boolean; mastered: boolean; attempts: number }>;
+
+function readStore(): ProgressStore {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function writeStore(store: ProgressStore) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+}
+
 class Database {
   async init() {}
 
@@ -17,38 +33,41 @@ class Database {
   }
 
   async getProgress(cardId: number): Promise<Progress | null> {
-    const { data, error } = await supabase
-      .from("progress")
-      .select("card_id, seen, mastered, attempts")
-      .eq("card_id", cardId)
-      .maybeSingle();
-    if (error || !data) return null;
-    return { cardId: data.card_id, seen: data.seen, mastered: data.mastered, attempts: data.attempts };
+    const entry = readStore()[cardId];
+    if (!entry) return null;
+    return { cardId, ...entry };
   }
 
   async getAllProgress(): Promise<Progress[]> {
-    const { data } = await supabase
-      .from("progress")
-      .select("card_id, seen, mastered, attempts");
-    if (!data) return [];
-    return data.map((r) => ({ cardId: r.card_id, seen: r.seen, mastered: r.mastered, attempts: r.attempts }));
+    const store = readStore();
+    return Object.entries(store).map(([id, entry]) => ({
+      cardId: Number(id),
+      ...entry,
+    }));
   }
 
   async resetProgress(cardId: number) {
-    await supabase.from("progress").delete().eq("card_id", cardId);
+    const store = readStore();
+    delete store[cardId];
+    writeStore(store);
   }
 
   async updateProgress(cardId: number, mastered: boolean) {
-    await supabase.rpc("upsert_progress", { p_card_id: cardId, p_mastered: mastered });
+    const store = readStore();
+    const existing = store[cardId];
+    store[cardId] = {
+      seen: true,
+      mastered,
+      attempts: existing ? existing.attempts + 1 : 1,
+    };
+    writeStore(store);
   }
 
   async getMistakeCardIds(): Promise<number[]> {
-    const { data } = await supabase
-      .from("progress")
-      .select("card_id")
-      .eq("seen", true)
-      .eq("mastered", false);
-    return (data || []).map((r) => r.card_id);
+    const store = readStore();
+    return Object.entries(store)
+      .filter(([, entry]) => entry.seen && !entry.mastered)
+      .map(([id]) => Number(id));
   }
 
   async close() {}
