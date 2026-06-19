@@ -35,13 +35,15 @@ interface Option {
 }
 
 function buildOptions(correct: Flashcard, pool: Flashcard[]): Option[] {
-  const poolDecoys = pool.filter((c) => c.id !== correct.id);
-  const needed = Math.max(0, 3 - poolDecoys.length);
+  const others = pool.filter((c) => c.id !== correct.id);
+  // Prefer same subcategory → same category → rest of pool → global fallback
+  const sameSub = shuffle(others.filter((c) => c.sub === correct.sub));
+  const sameCat = shuffle(others.filter((c) => c.cat === correct.cat && c.sub !== correct.sub));
+  const diffCat = shuffle(others.filter((c) => c.cat !== correct.cat));
   const poolIds = new Set(pool.map((c) => c.id));
-  const extra = needed > 0
-    ? shuffle(CARDS.filter((c) => !poolIds.has(c.id))).slice(0, needed)
-    : [];
-  const decoys = shuffle([...poolDecoys, ...extra])
+  const globalFallback = shuffle(CARDS.filter((c) => !poolIds.has(c.id)));
+  const ranked = [...sameSub, ...sameCat, ...diffCat, ...globalFallback];
+  const decoys = ranked
     .slice(0, 3)
     .map((c): Option => ({ cardId: c.id, text: getOptionText(c.a), correct: false }));
   return shuffle([{ cardId: correct.id, text: getOptionText(correct.a), correct: true }, ...decoys]);
