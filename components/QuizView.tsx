@@ -102,45 +102,63 @@ export default function QuizView() {
 
         {card && (
           <>
-            {/* Header */}
-            <div className="mb-5">
-              <div className="flex items-center justify-between mb-3">
+            {/* Category chip + counter */}
+            <div className="flex items-center justify-between mb-4">
+              <span
+                className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border"
+                style={{
+                  color: catMeta?.color,
+                  borderColor: `${catMeta?.color}50`,
+                  backgroundColor: `${catMeta?.color}10`,
+                }}
+              >
                 <span
-                  className="text-xs font-semibold px-3 py-1 rounded-full border uppercase tracking-wider"
-                  style={{
-                    color: catMeta?.color,
-                    borderColor: `${catMeta?.color}60`,
-                    backgroundColor: `${catMeta?.color}12`,
-                  }}
-                >
-                  {card.cat}
-                </span>
-                <span className="text-xs text-muted">
-                  {index + 1} / {deck.length} · {score} pts
-                </span>
-              </div>
-
-              <h2 className="text-2xl font-bold text-text leading-snug mb-2">{card.q}</h2>
-              <p className="text-xs text-muted2 uppercase tracking-widest">{card.sub}</p>
+                  className="w-1.5 h-1.5 rounded-full shrink-0"
+                  style={{ backgroundColor: catMeta?.color }}
+                />
+                {card.cat}
+              </span>
+              <span className="text-xs text-muted tabular-nums">
+                {index + 1} / {deck.length} · {score} pts
+              </span>
             </div>
 
-            {/* Answer */}
-            {flipped ? (
-              <div className="bg-surface border border-border rounded-2xl p-5 mb-4 animate-flipIn">
-                <p
-                  className="text-sm leading-relaxed [&_b]:font-semibold [&_b]:text-text"
-                  style={{ color: "var(--theme-muted2)" }}
-                  dangerouslySetInnerHTML={{ __html: card.a }}
-                />
-              </div>
-            ) : (
-              <button
-                onClick={() => setFlipped(true)}
-                className="w-full bg-surface border border-dashed border-border rounded-2xl p-10 mb-4 text-muted text-sm text-center transition-colors hover:border-border2"
+            {/* Flip card */}
+            <div
+              className="flip-card mb-4 cursor-pointer"
+              style={{ minHeight: "240px" }}
+              onClick={() => !flipped && setFlipped(true)}
+            >
+              <div
+                className={`flip-inner rounded-2xl${flipped ? " is-flipped" : ""}`}
+                style={{ minHeight: "240px" }}
               >
-                Tap to reveal answer
-              </button>
-            )}
+                {/* Front — question */}
+                <div
+                  className="flip-face bg-surface border border-border rounded-2xl p-6 flex flex-col justify-between"
+                  style={{ minHeight: "240px" }}
+                >
+                  <div>
+                    <h2 className="text-2xl font-bold text-text leading-snug mb-3">{card.q}</h2>
+                    <p className="text-xs text-muted2 uppercase tracking-widest">{card.sub}</p>
+                  </div>
+                  <p className="text-xs text-muted text-center mt-4">Tap to reveal answer</p>
+                </div>
+
+                {/* Back — answer */}
+                <div
+                  className="flip-face flip-back bg-surface border border-border rounded-2xl p-6 overflow-y-auto"
+                  style={{ minHeight: "240px" }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <p
+                    className="text-sm leading-relaxed [&_b]:font-semibold [&_b]:text-text"
+                    style={{ color: "var(--theme-muted2)" }}
+                    dangerouslySetInnerHTML={{ __html: card.a }}
+                  />
+                </div>
+              </div>
+            </div>
 
             {/* Actions */}
             {flipped ? (
