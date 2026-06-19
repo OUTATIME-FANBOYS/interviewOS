@@ -1,11 +1,17 @@
 import { createClient } from "@supabase/supabase-js";
 import { CARDS } from "../data/cards";
-import * as dotenv from "dotenv";
+import { readFileSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: resolve(__dirname, "../.env.local") });
+
+// Parse .env.local without dotenv
+const envPath = resolve(__dirname, "../.env.local");
+for (const line of readFileSync(envPath, "utf8").split("\n")) {
+  const m = line.match(/^([^#=]+)=["']?(.+?)["']?\s*$/);
+  if (m) process.env[m[1].trim()] = m[2].trim();
+}
 
 const url = process.env.NEXT_PUBLIC_STORAGE_SUPABASE_URL;
 const key = process.env.NEXT_PUBLIC_STORAGE_SUPABASE_ANON_KEY;
