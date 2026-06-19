@@ -101,9 +101,10 @@ export default function FlashcardView() {
             {!flipped ? (
               <p className="text-text text-base leading-relaxed">{card.q}</p>
             ) : (
-              <p className="text-muted2 text-sm leading-relaxed animate-flipIn">
-                {card.a}
-              </p>
+              <p
+                className="text-muted2 text-sm leading-relaxed animate-flipIn [&_b]:text-text [&_b]:font-semibold"
+                dangerouslySetInnerHTML={{ __html: card.a }}
+              />
             )}
           </div>
 
