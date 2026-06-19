@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "InterviewOS",
@@ -20,7 +27,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="bg-bg text-text font-mono transition-colors duration-200">
+      <body className={`${inter.variable} bg-bg text-text font-sans antialiased transition-colors duration-200`}>
         <div className="max-w-md mx-auto min-h-screen">{children}</div>
       </body>
     </html>
