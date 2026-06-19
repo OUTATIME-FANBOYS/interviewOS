@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { ProgressBar } from "./ProgressBar";
+import { AppHeader } from "./AppHeader";
 import { CAT_META } from "@/lib/constants";
 import { CARDS } from "@/data/cards";
 import { db } from "@/lib/db";
@@ -37,7 +38,9 @@ export default function StatsView() {
   }
 
   return (
-    <div className="p-4" style={{ paddingTop: "calc(1rem + env(safe-area-inset-top, 0px))" }}>
+    <div className="flex flex-col min-h-screen">
+      <AppHeader title="Stats" />
+    <div className="p-4">
       <h1 className="text-xl font-bold text-text mb-1">Progress</h1>
       <p className="text-xs text-muted2 mb-6">Track your mastery across topics</p>
 
@@ -102,6 +105,7 @@ export default function StatsView() {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import { CARDS } from "@/data/cards";
 import { CAT_META } from "@/lib/constants";
 import { Chip } from "./Chip";
+import { AppHeader } from "./AppHeader";
 import { db } from "@/lib/db";
 import type { Flashcard } from "@/lib/types";
 
@@ -121,9 +122,10 @@ export default function QuizView() {
   if (done) {
     const pct = Math.round((score / deck.length) * 100);
     return (
+      <div className="flex flex-col min-h-screen">
+        <AppHeader title="Quiz" />
       <div
         className="p-4 flex flex-col items-center justify-center min-h-[60vh] text-center"
-        style={{ paddingTop: "calc(1rem + env(safe-area-inset-top, 0px))" }}
       >
         <p className="text-4xl mb-4">🎯</p>
         <h2 className="text-2xl font-bold text-text mb-2">Quiz Complete</h2>
@@ -138,6 +140,7 @@ export default function QuizView() {
           New Session →
         </button>
       </div>
+      </div>
     );
   }
 
@@ -145,7 +148,8 @@ export default function QuizView() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="p-4 flex-1" style={{ paddingTop: "calc(1rem + env(safe-area-inset-top, 0px))" }}>
+      <AppHeader title="Quiz" />
+      <div className="p-4 flex-1">
         {/* Category filter */}
         <div className="flex gap-2 overflow-x-auto pb-2 mb-5 scrollbar-none">
           <Chip
