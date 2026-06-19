@@ -4,10 +4,6 @@ const config: CapacitorConfig = {
   appId: "com.tanmay.interviewos",
   appName: "InterviewOS",
   webDir: "out",
-  server: {
-    url: "http://localhost:3000",
-    cleartext: true,
-  },
   plugins: {
     CapacitorSQLite: {
       iosDatabaseLocation: "Library/Database",

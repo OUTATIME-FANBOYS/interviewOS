@@ -1,7 +1,8 @@
 import type { Flashcard, Progress } from "./types";
+import { supabase } from "./supabase";
 
 // SQLite is only available on native platforms (iOS/Android via Capacitor).
-// On web, progress is stored in localStorage as a fallback.
+// On web, progress is stored in Supabase directly via the client SDK.
 class Database {
   private isNative = false;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -22,7 +23,7 @@ class Database {
       await this.createTables();
       this.isNative = true;
     } catch {
-      // Fall back to localStorage on web
+      // Fall back to Supabase on web
     }
   }
 
@@ -73,8 +74,13 @@ class Database {
 
   async getProgress(cardId: number): Promise<Progress | null> {
     if (!this.isNative || !this.db) {
-      const res = await fetch(`/api/progress/${cardId}`);
-      return res.ok ? res.json() : null;
+      const { data } = await supabase
+        .from("progress")
+        .select("card_id, seen, mastered, attempts")
+        .eq("card_id", cardId)
+        .single();
+      if (!data) return null;
+      return { cardId: data.card_id, seen: data.seen, mastered: data.mastered, attempts: data.attempts };
     }
     const result = await this.db.query(
       "SELECT * FROM progress WHERE cardId = ?",
@@ -85,8 +91,11 @@ class Database {
 
   async getAllProgress(): Promise<Progress[]> {
     if (!this.isNative || !this.db) {
-      const res = await fetch("/api/progress");
-      return res.ok ? res.json() : [];
+      const { data } = await supabase
+        .from("progress")
+        .select("card_id, seen, mastered, attempts");
+      if (!data) return [];
+      return data.map((r) => ({ cardId: r.card_id, seen: r.seen, mastered: r.mastered, attempts: r.attempts }));
     }
     const result = await this.db.query("SELECT * FROM progress");
     return result.values || [];
@@ -94,7 +103,7 @@ class Database {
 
   async resetProgress(cardId: number) {
     if (!this.isNative || !this.db) {
-      await fetch(`/api/progress/${cardId}`, { method: "DELETE" });
+      await supabase.from("progress").delete().eq("card_id", cardId);
       return;
     }
     await this.db.run("DELETE FROM progress WHERE cardId = ?", [cardId]);
@@ -102,11 +111,17 @@ class Database {
 
   async updateProgress(cardId: number, mastered: boolean) {
     if (!this.isNative || !this.db) {
-      await fetch(`/api/progress/${cardId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mastered }),
+      await supabase.from("progress").upsert({
+        card_id: cardId,
+        seen: true,
+        mastered,
+        attempts: 1,
+      }, {
+        onConflict: "card_id",
+        ignoreDuplicates: false,
       });
+      // Supabase upsert doesn't increment — do a separate increment
+      await supabase.rpc("increment_attempts", { target_card_id: cardId });
       return;
     }
     const existing = await this.getProgress(cardId);
@@ -121,6 +136,21 @@ class Database {
         [cardId, mastered ? 1 : 0]
       );
     }
+  }
+
+  async getMistakeCardIds(): Promise<number[]> {
+    if (!this.isNative || !this.db) {
+      const { data } = await supabase
+        .from("progress")
+        .select("card_id")
+        .eq("seen", true)
+        .eq("mastered", false);
+      return (data || []).map((r) => r.card_id);
+    }
+    const result = await this.db.query(
+      "SELECT cardId FROM progress WHERE seen = 1 AND mastered = 0"
+    );
+    return (result.values || []).map((r: { cardId: number }) => r.cardId);
   }
 
   async close() {
