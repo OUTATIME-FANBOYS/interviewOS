@@ -21,14 +21,14 @@ export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
         <button
           key={id}
           onClick={() => onTabChange(id)}
-          className={`flex-1 py-3 flex flex-col items-center gap-1 transition-colors cursor-pointer ${
+          className={`flex-1 py-2 flex flex-col items-center gap-0.5 transition-colors cursor-pointer ${
             activeTab === id ? "text-accent" : "text-muted"
           }`}
         >
-          <span className="text-xl">{icon}</span>
-          <span className="text-xs uppercase tracking-wider">{label}</span>
+          <span className="text-lg">{icon}</span>
+          <span className="text-base uppercase tracking-wider">{label}</span>
           {activeTab === id && (
-            <div className="w-3 h-0.5 bg-accent rounded-full mt-0.5" />
+            <div className="w-3 h-0.5 bg-accent rounded-full" />
           )}
         </button>
       ))}

@@ -14,7 +14,7 @@ export function AppHeader({ title }: AppHeaderProps) {
       className="sticky top-0 z-10 bg-bg/95 backdrop-blur border-b border-border px-4 pb-3 flex items-center justify-between"
       style={{ paddingTop: "calc(0.75rem + env(safe-area-inset-top, 0px))" }}
     >
-      <span className="text-sm font-semibold text-text tracking-tight">
+      <span className="text-base font-semibold text-text tracking-tight">
         InterviewOS <span className="text-muted2">{title}</span>
       </span>
       <button
