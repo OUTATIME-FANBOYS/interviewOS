@@ -74,12 +74,12 @@ class Database {
 
   async getProgress(cardId: number): Promise<Progress | null> {
     if (!this.isNative || !this.db) {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("progress")
         .select("card_id, seen, mastered, attempts")
         .eq("card_id", cardId)
-        .single();
-      if (!data) return null;
+        .maybeSingle();
+      if (error || !data) return null;
       return { cardId: data.card_id, seen: data.seen, mastered: data.mastered, attempts: data.attempts };
     }
     const result = await this.db.query(
@@ -111,17 +111,7 @@ class Database {
 
   async updateProgress(cardId: number, mastered: boolean) {
     if (!this.isNative || !this.db) {
-      await supabase.from("progress").upsert({
-        card_id: cardId,
-        seen: true,
-        mastered,
-        attempts: 1,
-      }, {
-        onConflict: "card_id",
-        ignoreDuplicates: false,
-      });
-      // Supabase upsert doesn't increment — do a separate increment
-      await supabase.rpc("increment_attempts", { target_card_id: cardId });
+      await supabase.rpc("upsert_progress", { p_card_id: cardId, p_mastered: mastered });
       return;
     }
     const existing = await this.getProgress(cardId);

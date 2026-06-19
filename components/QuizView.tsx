@@ -35,8 +35,13 @@ interface Option {
 }
 
 function buildOptions(correct: Flashcard, pool: Flashcard[]): Option[] {
-  const src = pool.length >= 4 ? pool : CARDS;
-  const decoys = shuffle(src.filter((c) => c.id !== correct.id))
+  const poolDecoys = pool.filter((c) => c.id !== correct.id);
+  const needed = Math.max(0, 3 - poolDecoys.length);
+  const poolIds = new Set(pool.map((c) => c.id));
+  const extra = needed > 0
+    ? shuffle(CARDS.filter((c) => !poolIds.has(c.id))).slice(0, needed)
+    : [];
+  const decoys = shuffle([...poolDecoys, ...extra])
     .slice(0, 3)
     .map((c): Option => ({ cardId: c.id, text: getOptionText(c.a), correct: false }));
   return shuffle([{ cardId: correct.id, text: getOptionText(correct.a), correct: true }, ...decoys]);
