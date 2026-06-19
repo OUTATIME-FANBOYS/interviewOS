@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import { Chip } from "./Chip";
 import { Toast } from "./Toast";
+import { AppHeader } from "./AppHeader";
 import { CAT_META } from "@/lib/constants";
 import { useFlashcards } from "@/hooks/useFlashcards";
 import { useProgress } from "@/hooks/useProgress";
-import { useTheme } from "@/hooks/useTheme";
 import type { Flashcard } from "@/lib/types";
 
 function formatAnswer(html: string): string {
@@ -16,7 +16,6 @@ function formatAnswer(html: string): string {
 export default function FlashcardView() {
   const { cards, fetchCards } = useFlashcards();
   const { updateProgress } = useProgress();
-  const { dark, toggle } = useTheme();
   const [activeCat, setActiveCat] = useState<string | null>(null);
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
@@ -45,22 +44,7 @@ export default function FlashcardView() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Top bar */}
-      <div
-        className="sticky top-0 z-10 bg-bg/95 backdrop-blur border-b border-border px-4 pb-3 flex items-center justify-between"
-        style={{ paddingTop: "calc(0.75rem + env(safe-area-inset-top, 0px))" }}
-      >
-        <span className="text-sm font-semibold text-text tracking-tight">
-          InterviewOS Flashcards
-        </span>
-        <button
-          onClick={toggle}
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-surface border border-border text-base transition-colors"
-          aria-label="Toggle theme"
-        >
-          {dark ? "☀️" : "🌙"}
-        </button>
-      </div>
+      <AppHeader title="Flashcards" />
 
       <div className="p-4 flex-1">
         {/* Category filter */}
