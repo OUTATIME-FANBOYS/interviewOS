@@ -1,14 +1,12 @@
 "use client";
 
-import { useTheme } from "@/hooks/useTheme";
+import { ThemeToggle } from "./ThemeToggle";
 
 interface AppHeaderProps {
   title: string;
 }
 
 export function AppHeader({ title }: AppHeaderProps) {
-  const { dark, toggle } = useTheme();
-
   return (
     <div
       className="sticky top-0 z-10 bg-bg/95 backdrop-blur border-b border-border px-4 pb-3 flex items-center justify-between"
@@ -17,13 +15,7 @@ export function AppHeader({ title }: AppHeaderProps) {
       <span className="text-base font-semibold text-text tracking-tight">
         InterviewOS <span className="text-muted2">{title}</span>
       </span>
-      <button
-        onClick={toggle}
-        className="w-8 h-8 flex items-center justify-center rounded-full bg-surface border border-border text-base transition-colors"
-        aria-label="Toggle theme"
-      >
-        {dark ? "☀️" : "🌙"}
-      </button>
+      <ThemeToggle />
     </div>
   );
 }
