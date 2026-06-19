@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "cap:sync": "npm run build && npx cap sync",
+    "build:web": "next build",
+    "build:capacitor": "BUILD_TARGET=capacitor next build",
+    "cap:sync": "npm run build:capacitor && npx cap sync",
     "cap:open:ios": "npx cap open ios",
     "cap:open:android": "npx cap open android"
   },
@@ -18,6 +20,7 @@
     "@capacitor/core": "^8.4.0",
     "@capacitor/keyboard": "^8.0.5",
     "@capacitor/status-bar": "^8.0.2",
+    "@neondatabase/serverless": "^1.1.0",
     "lucide-react": "^1.21.0",
     "next": "16.2.9",
     "react": "19.2.4",
