@@ -83,6 +83,23 @@ class Database {
     return result.values?.[0] || null;
   }
 
+  async getAllProgress(): Promise<Progress[]> {
+    if (!this.isNative || !this.db) {
+      const res = await fetch("/api/progress");
+      return res.ok ? res.json() : [];
+    }
+    const result = await this.db.query("SELECT * FROM progress");
+    return result.values || [];
+  }
+
+  async resetProgress(cardId: number) {
+    if (!this.isNative || !this.db) {
+      await fetch(`/api/progress/${cardId}`, { method: "DELETE" });
+      return;
+    }
+    await this.db.run("DELETE FROM progress WHERE cardId = ?", [cardId]);
+  }
+
   async updateProgress(cardId: number, mastered: boolean) {
     if (!this.isNative || !this.db) {
       await fetch(`/api/progress/${cardId}`, {

@@ -1,19 +1,44 @@
 @import "tailwindcss";
 
+/* Light mode defaults */
+:root {
+  --theme-bg: #f5f7fc;
+  --theme-surface: #ffffff;
+  --theme-surface2: #f1f5f9;
+  --theme-border: #e2e8f0;
+  --theme-border2: #cbd5e1;
+  --theme-text: #0f172a;
+  --theme-muted: #94a3b8;
+  --theme-muted2: #64748b;
+}
+
+/* Dark mode overrides */
+.dark {
+  --theme-bg: #080a0e;
+  --theme-surface: #0f1117;
+  --theme-surface2: #151820;
+  --theme-border: #1e2535;
+  --theme-border2: #252d40;
+  --theme-text: #e2e8f0;
+  --theme-muted: #4a5568;
+  --theme-muted2: #64748b;
+}
+
+/* Tailwind utility mappings — inline so they reference the live CSS vars */
 @theme inline {
-  --color-bg: #080a0e;
-  --color-surface: #0f1117;
-  --color-surface2: #151820;
-  --color-border: #1e2535;
-  --color-border2: #252d40;
+  --color-bg: var(--theme-bg);
+  --color-surface: var(--theme-surface);
+  --color-surface2: var(--theme-surface2);
+  --color-border: var(--theme-border);
+  --color-border2: var(--theme-border2);
   --color-accent: #00e5ff;
   --color-accent2: #7c3aed;
   --color-accent3: #f59e0b;
   --color-green: #10b981;
   --color-red: #ef4444;
-  --color-text: #e2e8f0;
-  --color-muted: #4a5568;
-  --color-muted2: #64748b;
+  --color-text: var(--theme-text);
+  --color-muted: var(--theme-muted);
+  --color-muted2: var(--theme-muted2);
   --font-mono: "Courier New", monospace;
 }
 
@@ -52,7 +77,7 @@
 @keyframes flipIn {
   from {
     opacity: 0;
-    transform: rotateY(-10deg);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -76,7 +101,7 @@
 }
 
 .animate-flipIn {
-  animation: flipIn 0.28s ease;
+  animation: flipIn 0.22s ease;
 }
 
 .animate-fadeUp {

@@ -1,134 +1,179 @@
 "use client";
 
-import { useState } from "react";
-import { QUIZZES } from "@/data/quizzes";
-import type { Quiz } from "@/lib/types";
+import { useState, useMemo } from "react";
+import { CARDS } from "@/data/cards";
+import { CAT_META } from "@/lib/constants";
+import { Chip } from "./Chip";
+import { db } from "@/lib/db";
+
+const QUIZ_SIZE = 20;
+
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 export default function QuizView() {
-  const quizzes: Quiz[] = QUIZZES;
+  const categories = Object.keys(CAT_META);
+  const [activeCat, setActiveCat] = useState<string | null>(null);
+  const [sessionKey, setSessionKey] = useState(0);
   const [index, setIndex] = useState(0);
-  const [selected, setSelected] = useState<number | null>(null);
+  const [flipped, setFlipped] = useState(false);
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
 
-  const q: Quiz | undefined = quizzes[index];
+  const deck = useMemo(() => {
+    const pool = activeCat ? CARDS.filter((c) => c.cat === activeCat) : CARDS;
+    return shuffle(pool).slice(0, QUIZ_SIZE);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeCat, sessionKey]);
 
-  function choose(i: number) {
-    if (selected !== null || !q) return;
-    setSelected(i);
-    if (i === q.correct) setScore((s) => s + 1);
-  }
+  const card = deck[index];
+  const catMeta = card ? CAT_META[card.cat] : null;
 
-  function next() {
-    if (index + 1 >= quizzes.length) {
+  function gradeAndNext(mastered: boolean) {
+    if (!card) return;
+    db.updateProgress(card.id, mastered);
+    if (mastered) setScore((s) => s + 1);
+    if (index + 1 >= deck.length) {
       setDone(true);
     } else {
       setIndex((i) => i + 1);
-      setSelected(null);
+      setFlipped(false);
     }
   }
 
   function restart() {
+    setSessionKey((k) => k + 1);
     setIndex(0);
-    setSelected(null);
+    setFlipped(false);
     setScore(0);
     setDone(false);
   }
 
-  if (quizzes.length === 0) {
-    return (
-      <div className="p-4">
-        <h1 className="text-xl font-bold text-text mb-2">Quiz</h1>
-        <p className="text-sm text-muted2">No quizzes available yet.</p>
-      </div>
-    );
-  }
-
   if (done) {
+    const pct = Math.round((score / deck.length) * 100);
     return (
       <div className="p-4 flex flex-col items-center justify-center min-h-[60vh] text-center">
         <p className="text-4xl mb-4">🎯</p>
         <h2 className="text-2xl font-bold text-text mb-2">Quiz Complete</h2>
-        <p className="text-muted2 mb-6">
-          Score: <span className="text-accent font-bold">{score}</span> / {quizzes.length}
+        <p className="text-muted2 mb-1">
+          Score: <span className="text-accent font-bold">{score}</span> / {deck.length}
         </p>
+        <p className="text-xs text-muted mb-6">{pct}% correct</p>
         <button
           onClick={restart}
           className="px-6 py-3 bg-accent/10 border border-accent/40 rounded-xl text-accent text-sm"
         >
-          Restart Quiz
+          New Session →
         </button>
       </div>
     );
   }
 
   return (
-    <div className="p-4">
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-bold text-text">Quiz</h1>
-        <span className="text-xs text-muted2">
-          {index + 1}/{quizzes.length} · {score} pts
-        </span>
-      </div>
+    <div className="flex flex-col min-h-screen">
+      <div className="p-4 flex-1">
+        {/* Category filter */}
+        <div className="flex gap-2 overflow-x-auto pb-2 mb-5 scrollbar-none">
+          <Chip
+            label="All"
+            active={activeCat === null}
+            color="#00e5ff"
+            onClick={() => { setActiveCat(null); restart(); }}
+            small
+          />
+          {categories.map((cat) => (
+            <Chip
+              key={cat}
+              label={cat}
+              active={activeCat === cat}
+              color={CAT_META[cat].color}
+              icon={CAT_META[cat].icon}
+              onClick={() => { setActiveCat(activeCat === cat ? null : cat); restart(); }}
+              small
+            />
+          ))}
+        </div>
 
-      {q && (
-        <>
-          <div className="bg-surface border border-border rounded-2xl p-5 mb-4">
-            <p className="text-xs text-muted2 mb-3">
-              {q.cat} · {q.sub}
-            </p>
-            <p className="text-text text-base leading-relaxed">{q.q}</p>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            {q.opts.map((opt, i) => {
-              const isSelected = selected === i;
-              const isCorrect = i === q.correct;
-              const revealed = selected !== null;
-              let borderColor = "#1e2535";
-              let bgColor = "transparent";
-              let textColor = "#64748b";
-              if (revealed && isCorrect) {
-                borderColor = "#10b981";
-                bgColor = "#10b98118";
-                textColor = "#10b981";
-              } else if (revealed && isSelected && !isCorrect) {
-                borderColor = "#ef4444";
-                bgColor = "#ef444418";
-                textColor = "#ef4444";
-              } else if (!revealed) {
-                textColor = "#e2e8f0";
-              }
-              return (
-                <button
-                  key={i}
-                  onClick={() => choose(i)}
-                  className="w-full text-left px-4 py-3 rounded-xl border text-sm transition-all"
-                  style={{ borderColor, backgroundColor: bgColor, color: textColor }}
+        {card && (
+          <>
+            {/* Header */}
+            <div className="mb-5">
+              <div className="flex items-center justify-between mb-3">
+                <span
+                  className="text-xs font-semibold px-3 py-1 rounded-full border uppercase tracking-wider"
+                  style={{
+                    color: catMeta?.color,
+                    borderColor: `${catMeta?.color}60`,
+                    backgroundColor: `${catMeta?.color}12`,
+                  }}
                 >
-                  <span className="opacity-50 mr-2">{String.fromCharCode(65 + i)}.</span>
-                  {opt}
-                </button>
-              );
-            })}
-          </div>
-
-          {selected !== null && (
-            <div className="mt-4">
-              <div className="bg-surface2 border border-border2 rounded-xl p-4 mb-4">
-                <p className="text-xs text-muted2 mb-1">Explanation</p>
-                <p className="text-sm text-text leading-relaxed">{q.exp}</p>
+                  {card.cat}
+                </span>
+                <span className="text-xs text-muted">
+                  {index + 1} / {deck.length} · {score} pts
+                </span>
               </div>
-              <button
-                onClick={next}
-                className="w-full py-3 bg-accent/10 border border-accent/40 rounded-xl text-accent text-sm"
-              >
-                {index + 1 >= quizzes.length ? "See Results" : "Next →"}
-              </button>
+
+              <h2 className="text-2xl font-bold text-text leading-snug mb-2">{card.q}</h2>
+              <p className="text-xs text-muted2 uppercase tracking-widest">{card.sub}</p>
             </div>
-          )}
-        </>
-      )}
+
+            {/* Answer */}
+            {flipped ? (
+              <div className="bg-surface border border-border rounded-2xl p-5 mb-4 animate-flipIn">
+                <p
+                  className="text-sm leading-relaxed [&_b]:font-semibold [&_b]:text-text"
+                  style={{ color: "var(--theme-muted2)" }}
+                  dangerouslySetInnerHTML={{ __html: card.a }}
+                />
+              </div>
+            ) : (
+              <button
+                onClick={() => setFlipped(true)}
+                className="w-full bg-surface border border-dashed border-border rounded-2xl p-10 mb-4 text-muted text-sm text-center transition-colors hover:border-border2"
+              >
+                Tap to reveal answer
+              </button>
+            )}
+
+            {/* Actions */}
+            {flipped ? (
+              <div className="flex gap-3">
+                <button
+                  onClick={() => gradeAndNext(true)}
+                  className="flex-1 py-3 rounded-xl bg-green/10 border border-green/40 text-sm text-green transition-all active:scale-95"
+                >
+                  Got it ✓
+                </button>
+                <button
+                  onClick={() => gradeAndNext(false)}
+                  className="flex-1 py-3 rounded-xl bg-red/10 border border-red/40 text-sm text-red transition-all active:scale-95"
+                >
+                  Review ✗
+                </button>
+              </div>
+            ) : (
+              <div className="flex gap-3">
+                <button
+                  onClick={restart}
+                  className="py-3 px-4 rounded-xl border border-border text-sm text-muted2 transition-opacity"
+                >
+                  ↺
+                </button>
+                <div className="flex-1 py-3 rounded-xl border border-dashed border-border text-sm text-muted text-center">
+                  Reveal to continue
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
