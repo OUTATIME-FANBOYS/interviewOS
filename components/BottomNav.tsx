@@ -26,7 +26,7 @@ export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
           }`}
         >
           <span className="text-lg">{icon}</span>
-          <span className="text-xs uppercase tracking-wider">{label}</span>
+          <span className="text-sm uppercase tracking-wider">{label}</span>
           {activeTab === id && (
             <div className="w-3 h-0.5 bg-accent rounded-full" />
           )}
