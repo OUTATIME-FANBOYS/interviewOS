@@ -12,11 +12,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="bg-[#080a0e] text-[#e2e8f0] font-mono">
-        <div className="max-w-md mx-auto min-h-screen bg-linear-to-b from-[#080a0e] via-[#0f1117] to-[#080a0e]">
-          {children}
-        </div>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem('theme');if(t==='light')document.documentElement.classList.remove('dark');else document.documentElement.classList.add('dark');}catch(e){}`,
+          }}
+        />
+      </head>
+      <body className="bg-bg text-text font-mono transition-colors duration-200">
+        <div className="max-w-md mx-auto min-h-screen">{children}</div>
       </body>
     </html>
   );

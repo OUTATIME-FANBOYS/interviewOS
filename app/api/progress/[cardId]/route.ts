@@ -19,6 +19,18 @@ export async function GET(_req: NextRequest, { params }: Params) {
   return NextResponse.json(rows[0] ?? null);
 }
 
+export async function DELETE(_req: NextRequest, { params }: Params) {
+  const { cardId } = await params;
+  const id = Number(cardId);
+  if (!Number.isInteger(id)) {
+    return NextResponse.json({ error: "Invalid cardId" }, { status: 400 });
+  }
+
+  await ensureProgressTable();
+  await sql`DELETE FROM progress WHERE card_id = ${id}`;
+  return NextResponse.json({ ok: true });
+}
+
 export async function POST(req: NextRequest, { params }: Params) {
   const { cardId } = await params;
   const id = Number(cardId);
