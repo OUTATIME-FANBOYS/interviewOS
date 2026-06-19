@@ -5,10 +5,12 @@ import { Chip } from "./Chip";
 import { Toast } from "./Toast";
 import { CAT_META } from "@/lib/constants";
 import { useFlashcards } from "@/hooks/useFlashcards";
+import { useProgress } from "@/hooks/useProgress";
 import type { Flashcard } from "@/lib/types";
 
 export default function FlashcardView() {
-  const { cards, loading, fetchCards } = useFlashcards();
+  const { cards, fetchCards } = useFlashcards();
+  const { updateProgress } = useProgress();
   const [activeCat, setActiveCat] = useState<string | null>(null);
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
@@ -45,7 +47,7 @@ export default function FlashcardView() {
           Flashcards
         </h1>
         <p className="text-xs text-muted2">
-          {loading ? "Loading..." : `${cards.length} cards`}
+          {`${cards.length} cards`}
           {activeCat ? ` · ${activeCat}` : " · All categories"}
         </p>
       </div>
@@ -112,7 +114,7 @@ export default function FlashcardView() {
       ) : (
         <div className="bg-surface border border-border rounded-2xl p-6 min-h-65 flex items-center justify-center">
           <p className="text-muted text-sm">
-            {loading ? "Loading cards..." : "No cards found"}
+            No cards found
           </p>
         </div>
       )}
@@ -129,6 +131,7 @@ export default function FlashcardView() {
           </button>
           <button
             onClick={() => {
+              if (card) updateProgress(card.id, true);
               showToast("Marked as known ✓");
               next();
             }}
@@ -138,6 +141,7 @@ export default function FlashcardView() {
           </button>
           <button
             onClick={() => {
+              if (card) updateProgress(card.id, false);
               showToast("Added to review ↺");
               next();
             }}

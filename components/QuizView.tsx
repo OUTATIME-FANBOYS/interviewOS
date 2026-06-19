@@ -1,21 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { QUIZZES } from "@/data/quizzes";
 import type { Quiz } from "@/lib/types";
 
 export default function QuizView() {
-  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const quizzes: Quiz[] = QUIZZES;
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
-
-  useEffect(() => {
-    fetch("/api/quizzes")
-      .then((r) => r.json())
-      .then(setQuizzes)
-      .catch(console.error);
-  }, []);
 
   const q: Quiz | undefined = quizzes[index];
 
